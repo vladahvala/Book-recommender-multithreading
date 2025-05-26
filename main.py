@@ -10,6 +10,7 @@ from book_components import BookComposite, BookLeaf  # переконайся, �
 from observer import BookNotifier, UserKeywordSubscriber
 from search_memento import SearchMemento, SearchHistory
 
+import time
 
 class BookRecommender(QWidget):
     def __init__(self):
@@ -102,6 +103,29 @@ class BookRecommender(QWidget):
         self.results_widget.setLayout(self.results_layout)
         self.scroll_area.setWidget(self.results_widget)
         self.layout.addWidget(self.scroll_area)
+
+    def run_batch_searches(self):
+        search_words = ["python", "c++", "java", "javascript", "animal",
+                        "history", "nature", "machine learning", "quantum physics", "love", "zymurgy"]  # Приклад списку ключових слів
+        max_results_list = [5, 10, 20, 40]
+
+        for max_results in max_results_list:
+            print(f"\n--- Searching with maxResults={max_results} ---")
+            for query in search_words:
+                print(f"Searching for '{query}' ...")
+                start_time = time.perf_counter()
+                url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
+                response = requests.get(url)
+                if response.status_code != 200:
+                    print(f"Error fetching data for query '{query}'")
+                    continue
+                data = response.json()
+                # Тут можна додати обробку даних, якщо потрібно
+                end_time = time.perf_counter()
+                elapsed = end_time - start_time
+                print(f"[Timing] Query '{query}' with maxResults={max_results} took {elapsed:.4f} seconds")
+
+
 
     def apply_styles(self):
         self.setStyleSheet("""
@@ -273,7 +297,9 @@ class BookRecommender(QWidget):
         if not query:
             return
 
-        url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=20"
+        start_time = time.perf_counter()  # Починаємо вимір
+        max_results = 20  # Можна зробити параметром
+        url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
         response = requests.get(url)
         if response.status_code != 200:
             print("Error fetching data")
@@ -292,7 +318,6 @@ class BookRecommender(QWidget):
             image = info.get('imageLinks', {}).get('thumbnail', '')
             authors = info.get('authors', [])
 
-            # Викликаємо сповіщення підписників по заголовку книги
             self.notifier.notify(title)
 
             leaf = BookLeaf(title, image, published_date, rating, authors)
@@ -330,11 +355,18 @@ class BookRecommender(QWidget):
                     show_rating=self.check_var2.isChecked()
                 )
 
+        end_time = time.perf_counter()  # Кінець виміру
+        elapsed = end_time - start_time
+        print(f"[Timing] Search for '{query}' with maxResults={max_results} took {elapsed:.4f} seconds")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     window = BookRecommender()
     window.show()
-    sys.exit(app.exec_())
+    
+ # Запускаємо батч-пошук після того, як вікно створено
+    window.run_batch_searches()
 
+    sys.exit(app.exec_())
+    sys.exit(app.exec_())
