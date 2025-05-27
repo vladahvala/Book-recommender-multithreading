@@ -1,6 +1,6 @@
 import sys
 import requests
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QObject, QRunnable, QThreadPool, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton,
     QCheckBox, QScrollArea, QComboBox
@@ -13,6 +13,38 @@ from search_memento import SearchMemento, SearchHistory
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import time
+
+from PyQt5.QtWidgets import QMessageBox
+
+
+class WorkerSignals(QObject):
+    finished = pyqtSignal(dict, float)
+    error = pyqtSignal(str)
+
+class SearchWorker(QRunnable):
+    def __init__(self, query, max_results=20):
+        super().__init__()
+        self.query = query
+        self.max_results = max_results
+        self.signals = WorkerSignals()
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            start_time = time.perf_counter()
+            url = f"https://www.googleapis.com/books/v1/volumes?q={self.query}&maxResults={self.max_results}"
+            response = requests.get(url)
+            if response.status_code != 200:
+                self.signals.error.emit("Error fetching data from Google Books API.")
+                return
+
+            data = response.json()
+            elapsed = time.perf_counter() - start_time
+            self.signals.finished.emit(data, elapsed)
+
+        except Exception as e:
+            self.signals.error.emit(str(e))
+
 
 class BookRecommender(QWidget):
     def __init__(self):
@@ -306,22 +338,21 @@ class BookRecommender(QWidget):
 
 
     def search(self):
-        start_time = time.perf_counter()
-
         self.save_current_state_as_memento()
         self.clear_results()
         query = self.search_box.text().strip()
         if not query:
             return
 
-        max_results = 20
-        url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
-        response = requests.get(url)
-        if response.status_code != 200:
-            print("Error fetching data")
-            return
+        self.thread_pool = QThreadPool.globalInstance()
+        worker = SearchWorker(query)
 
-        data = response.json()
+        worker.signals.finished.connect(self.handle_search_results)
+        worker.signals.error.connect(self.handle_search_error)
+
+        self.thread_pool.start(worker)
+
+    def handle_search_results(self, data, elapsed):
         group_mode = self.grouping_box.currentText()
         grouped = {}
         ungrouped = []
@@ -371,9 +402,15 @@ class BookRecommender(QWidget):
                     show_rating=self.check_var2.isChecked()
                 )
 
-        end_time = time.perf_counter()
-        elapsed = end_time - start_time
-        print(f"[Timing] Search for '{query}' took {elapsed:.4f} seconds")
+        print(f"[Timing] Search for '{self.search_box.text().strip()}' took {elapsed:.4f} seconds")
+
+  
+
+    def handle_search_error(self, message):
+        QMessageBox.critical(self, "Помилка пошуку", message)
+
+
+
 
 
 if __name__ == '__main__':
