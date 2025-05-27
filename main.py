@@ -16,6 +16,10 @@ import time
 
 from PyQt5.QtWidgets import QMessageBox
 
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
+from PyQt5.QtCore import QEventLoop, QUrl
+
 
 class WorkerSignals(QObject):
     finished = pyqtSignal(dict, float)
@@ -137,42 +141,6 @@ class BookRecommender(QWidget):
         self.results_widget.setLayout(self.results_layout)
         self.scroll_area.setWidget(self.results_widget)
         self.layout.addWidget(self.scroll_area)
-
-    # def run_batch_searches(self):
-    #     search_words = ["python", "c++", "java", "javascript", "animal",
-    #                     "history", "nature", "machine learning", "quantum physics", "love", "zymurgy"]
-    #     max_results_list = [5, 10, 20, 40]
-
-    #     for max_results in max_results_list:
-    #         print(f"\n--- Searching with maxResults={max_results} ---")
-    #         start_time = time.perf_counter()
-
-    #         # Функція для одного запиту
-    #         def fetch_data(query):
-    #             print(f"Searching for '{query}' ...")
-    #             url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
-    #             response = requests.get(url)
-    #             if response.status_code != 200:
-    #                 print(f"Error fetching data for query '{query}'")
-    #                 return None
-    #             return response.json()
-
-    #         # Виконуємо всі запити паралельно
-    #         with ThreadPoolExecutor(max_workers=5) as executor:
-    #             # Створюємо майбутні об'єкти (future) для кожного запиту
-    #             futures = {executor.submit(fetch_data, query): query for query in search_words}
-
-    #             for future in as_completed(futures):
-    #                 query = futures[future]
-    #                 try:
-    #                     data = future.result()
-    #                 except Exception as exc:
-    #                     print(f"Query '{query}' generated an exception: {exc}")
-
-    #         end_time = time.perf_counter()
-    #         elapsed = end_time - start_time
-    #         print(f"[Timing] Total time for maxResults={max_results}: {elapsed:.4f} seconds")
-
 
     def apply_styles(self):
         self.setStyleSheet("""
@@ -402,16 +370,11 @@ class BookRecommender(QWidget):
                     show_rating=self.check_var2.isChecked()
                 )
 
-        print(f"[Timing] Search for '{self.search_box.text().strip()}' took {elapsed:.4f} seconds")
+        BookLeaf.print_average_load_time()
 
-  
 
     def handle_search_error(self, message):
         QMessageBox.critical(self, "Помилка пошуку", message)
-
-
-
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -419,7 +382,4 @@ if __name__ == '__main__':
     window = BookRecommender()
     window.show()
     
- # Запускаємо батч-пошук після того, як вікно створено
-    # window.run_batch_searches()
-
     sys.exit(app.exec_())
