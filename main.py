@@ -247,52 +247,57 @@ class BookRecommender(QWidget):
         if not memento.query:
             return
 
-        url = f"https://www.googleapis.com/books/v1/volumes?q={memento.query}&maxResults=20"
-        response = requests.get(url)
-        if response.status_code != 200:
-            print("Error fetching data")
-            return
+        # Функція для обробки результатів пошуку, як on_results_ready
+        def handle_results(data):
+            group_mode = memento.group_mode
+            grouped = {}
+            ungrouped = []
 
-        data = response.json()
-        group_mode = memento.group_mode
-        grouped = {}
-        ungrouped = []
+            for item in data.get('items', []):
+                info = item.get('volumeInfo', {})
+                title = info.get('title', 'N/A')
+                published_date = info.get('publishedDate', 'N/A')
+                rating = info.get('averageRating', 'N/A')
+                image = info.get('imageLinks', {}).get('thumbnail', '')
+                authors = info.get('authors', [])
 
-        for item in data.get('items', []):
-            info = item.get('volumeInfo', {})
-            title = info.get('title', 'N/A')
-            published_date = info.get('publishedDate', 'N/A')
-            rating = info.get('averageRating', 'N/A')
-            image = info.get('imageLinks', {}).get('thumbnail', '')
-            authors = info.get('authors', [])
+                self.notifier.notify(title)
+                leaf = BookLeaf(title, image, published_date, rating, authors)
 
-            self.notifier.notify(title)
-            leaf = BookLeaf(title, image, published_date, rating, authors)
+                if group_mode == "Group by Year":
+                    key = published_date.split('-')[0] if published_date != 'N/A' else "Unknown"
+                elif group_mode == "Group by Rating":
+                    key = str(rating) if rating != 'N/A' else "No Rating"
+                elif group_mode == "Group by First Letter":
+                    key = title[0].upper() if title and title[0].isalpha() else "#"
+                elif group_mode == "Group by Author":
+                    key = authors[0] if authors else "Unknown Author"
+                else:
+                    key = None
 
-            if group_mode == "Group by Year":
-                key = published_date.split('-')[0] if published_date != 'N/A' else "Unknown"
-            elif group_mode == "Group by Rating":
-                key = str(rating) if rating != 'N/A' else "No Rating"
-            elif group_mode == "Group by First Letter":
-                key = title[0].upper() if title and title[0].isalpha() else "#"
-            elif group_mode == "Group by Author":
-                key = authors[0] if authors else "Unknown Author"
+                if key is None:
+                    ungrouped.append(leaf)
+                else:
+                    if key not in grouped:
+                        grouped[key] = BookComposite(key)
+                    grouped[key].add(leaf)
+
+            if group_mode == "No Grouping":
+                for leaf in ungrouped:
+                    leaf.display(self.results_layout, show_date=memento.show_date, show_rating=memento.show_rating)
             else:
-                key = None
+                for key in sorted(grouped.keys()):
+                    grouped[key].display(self.results_layout, show_date=memento.show_date, show_rating=memento.show_rating)
 
-            if key is None:
-                ungrouped.append(leaf)
-            else:
-                if key not in grouped:
-                    grouped[key] = BookComposite(key)
-                grouped[key].add(leaf)
+        # Запускаємо асинхронний пошук через SearchWorker
+        worker = SearchWorker(memento.query)
+        
+        # Підписуємося на сигнал, щоб отримати результати і передати в handle_results
+        worker.results_ready.connect(handle_results)
+        
+        # Запускаємо воркер у пулі потоків
+        self.threadpool.start(worker)
 
-        if group_mode == "No Grouping":
-            for leaf in ungrouped:
-                leaf.display(self.results_layout, show_date=memento.show_date, show_rating=memento.show_rating)
-        else:
-            for key in sorted(grouped.keys()):
-                grouped[key].display(self.results_layout, show_date=memento.show_date, show_rating=memento.show_rating)
 
     def undo_search(self):
         memento = self.history.undo()
@@ -325,6 +330,8 @@ class BookRecommender(QWidget):
         grouped = {}
         ungrouped = []
 
+        start_grouping = time.perf_counter()  # починаємо вимірювати час групування
+
         for item in data.get('items', []):
             info = item.get('volumeInfo', {})
             title = info.get('title', 'N/A')
@@ -355,6 +362,10 @@ class BookRecommender(QWidget):
                     grouped[key] = BookComposite(key)
                 grouped[key].add(leaf)
 
+        end_grouping = time.perf_counter()  # кінець вимірювання часу групування
+        grouping_time = end_grouping - start_grouping
+        print(f"Grouping took {grouping_time:.4f} seconds")
+
         if group_mode == "No Grouping":
             for leaf in ungrouped:
                 leaf.display(
@@ -370,7 +381,6 @@ class BookRecommender(QWidget):
                     show_rating=self.check_var2.isChecked()
                 )
 
-        BookLeaf.print_average_load_time()
 
 
     def handle_search_error(self, message):

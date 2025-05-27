@@ -5,16 +5,12 @@ from PyQt5.QtGui import QPixmap, QImage
 from PIL import Image
 from io import BytesIO
 import requests
-import time
 
 class BookComponent:
     def display(self, layout, show_date=True, show_rating=True):
         pass
 
 class BookLeaf(BookComponent):
-    total_load_time = 0
-    load_count = 0
-
     def __init__(self, title, poster, date, rating, authors=None):
         self.title = title
         self.poster = poster
@@ -40,17 +36,7 @@ class BookLeaf(BookComponent):
         # Зображення
         if self.poster:
             try:
-                import time  # імпортуємо тут, якщо не було глобально
-                start = time.perf_counter()
                 response = requests.get(self.poster)
-                load_time = time.perf_counter() - start
-
-                # накопичуємо час і кількість
-                BookLeaf.total_load_time += load_time
-                BookLeaf.load_count += 1
-
-                print(f"[Timing] Image for '{self.title}' loaded in {load_time:.4f} sec")
-
                 img = Image.open(BytesIO(response.content))
                 img = img.resize((140, 200))
                 img = img.convert("RGB")
@@ -59,8 +45,8 @@ class BookLeaf(BookComponent):
                 image_label = QLabel()
                 image_label.setPixmap(pixmap)
                 frame_layout.addWidget(image_label)
-            except Exception as e:
-                print(f"Failed to load image for '{self.title}': {e}")
+            except:
+                pass
 
         # Дата
         if show_date:
@@ -73,15 +59,6 @@ class BookLeaf(BookComponent):
             frame_layout.addWidget(rating_label)
 
         layout.addWidget(frame)
-
-    @classmethod
-    def print_average_load_time(cls):
-        if cls.load_count == 0:
-            print("[Timing] No images loaded yet.")
-        else:
-            avg_time = cls.total_load_time / cls.load_count
-            print(f"[Timing] Average image load time: {avg_time:.4f} seconds over {cls.load_count} images")
-
 
 class BookComposite(BookComponent):
     def __init__(self, name):
