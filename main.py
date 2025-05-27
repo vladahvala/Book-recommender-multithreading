@@ -111,9 +111,9 @@ class BookRecommender(QWidget):
 
         for max_results in max_results_list:
             print(f"\n--- Searching with maxResults={max_results} ---")
+            start_time = time.perf_counter()  # Починаємо вимір для всіх запитів разом
             for query in search_words:
                 print(f"Searching for '{query}' ...")
-                start_time = time.perf_counter()
                 url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
                 response = requests.get(url)
                 if response.status_code != 200:
@@ -121,9 +121,9 @@ class BookRecommender(QWidget):
                     continue
                 data = response.json()
                 # Тут можна додати обробку даних, якщо потрібно
-                end_time = time.perf_counter()
-                elapsed = end_time - start_time
-                print(f"[Timing] Query '{query}' with maxResults={max_results} took {elapsed:.4f} seconds")
+            end_time = time.perf_counter()  # Кінець виміру для всіх запитів
+            elapsed = end_time - start_time
+            print(f"[Timing] Total time for maxResults={max_results}: {elapsed:.4f} seconds")
 
 
 
