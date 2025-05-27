@@ -106,40 +106,40 @@ class BookRecommender(QWidget):
         self.scroll_area.setWidget(self.results_widget)
         self.layout.addWidget(self.scroll_area)
 
-    def run_batch_searches(self):
-        search_words = ["python", "c++", "java", "javascript", "animal",
-                        "history", "nature", "machine learning", "quantum physics", "love", "zymurgy"]
-        max_results_list = [5, 10, 20, 40]
+    # def run_batch_searches(self):
+    #     search_words = ["python", "c++", "java", "javascript", "animal",
+    #                     "history", "nature", "machine learning", "quantum physics", "love", "zymurgy"]
+    #     max_results_list = [5, 10, 20, 40]
 
-        for max_results in max_results_list:
-            print(f"\n--- Searching with maxResults={max_results} ---")
-            start_time = time.perf_counter()
+    #     for max_results in max_results_list:
+    #         print(f"\n--- Searching with maxResults={max_results} ---")
+    #         start_time = time.perf_counter()
 
-            # Функція для одного запиту
-            def fetch_data(query):
-                print(f"Searching for '{query}' ...")
-                url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
-                response = requests.get(url)
-                if response.status_code != 200:
-                    print(f"Error fetching data for query '{query}'")
-                    return None
-                return response.json()
+    #         # Функція для одного запиту
+    #         def fetch_data(query):
+    #             print(f"Searching for '{query}' ...")
+    #             url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
+    #             response = requests.get(url)
+    #             if response.status_code != 200:
+    #                 print(f"Error fetching data for query '{query}'")
+    #                 return None
+    #             return response.json()
 
-            # Виконуємо всі запити паралельно
-            with ThreadPoolExecutor(max_workers=5) as executor:
-                # Створюємо майбутні об'єкти (future) для кожного запиту
-                futures = {executor.submit(fetch_data, query): query for query in search_words}
+    #         # Виконуємо всі запити паралельно
+    #         with ThreadPoolExecutor(max_workers=5) as executor:
+    #             # Створюємо майбутні об'єкти (future) для кожного запиту
+    #             futures = {executor.submit(fetch_data, query): query for query in search_words}
 
-                for future in as_completed(futures):
-                    query = futures[future]
-                    try:
-                        data = future.result()
-                    except Exception as exc:
-                        print(f"Query '{query}' generated an exception: {exc}")
+    #             for future in as_completed(futures):
+    #                 query = futures[future]
+    #                 try:
+    #                     data = future.result()
+    #                 except Exception as exc:
+    #                     print(f"Query '{query}' generated an exception: {exc}")
 
-            end_time = time.perf_counter()
-            elapsed = end_time - start_time
-            print(f"[Timing] Total time for maxResults={max_results}: {elapsed:.4f} seconds")
+    #         end_time = time.perf_counter()
+    #         elapsed = end_time - start_time
+    #         print(f"[Timing] Total time for maxResults={max_results}: {elapsed:.4f} seconds")
 
 
     def apply_styles(self):
@@ -306,14 +306,15 @@ class BookRecommender(QWidget):
 
 
     def search(self):
+        start_time = time.perf_counter()
+
         self.save_current_state_as_memento()
         self.clear_results()
         query = self.search_box.text().strip()
         if not query:
             return
 
-        start_time = time.perf_counter()  # Починаємо вимір
-        max_results = 20  # Можна зробити параметром
+        max_results = 20
         url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
         response = requests.get(url)
         if response.status_code != 200:
@@ -370,9 +371,10 @@ class BookRecommender(QWidget):
                     show_rating=self.check_var2.isChecked()
                 )
 
-        end_time = time.perf_counter()  # Кінець виміру
+        end_time = time.perf_counter()
         elapsed = end_time - start_time
-        print(f"[Timing] Search for '{query}' with maxResults={max_results} took {elapsed:.4f} seconds")
+        print(f"[Timing] Search for '{query}' took {elapsed:.4f} seconds")
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -381,7 +383,6 @@ if __name__ == '__main__':
     window.show()
     
  # Запускаємо батч-пошук після того, як вікно створено
-    window.run_batch_searches()
+    # window.run_batch_searches()
 
-    sys.exit(app.exec_())
     sys.exit(app.exec_())
