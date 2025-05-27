@@ -10,6 +10,8 @@ from book_components import BookComposite, BookLeaf  # переконайся, �
 from observer import BookNotifier, UserKeywordSubscriber
 from search_memento import SearchMemento, SearchHistory
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import time
 
 class BookRecommender(QWidget):
@@ -106,25 +108,38 @@ class BookRecommender(QWidget):
 
     def run_batch_searches(self):
         search_words = ["python", "c++", "java", "javascript", "animal",
-                        "history", "nature", "machine learning", "quantum physics", "love", "zymurgy"]  # Приклад списку ключових слів
+                        "history", "nature", "machine learning", "quantum physics", "love", "zymurgy"]
         max_results_list = [5, 10, 20, 40]
 
         for max_results in max_results_list:
             print(f"\n--- Searching with maxResults={max_results} ---")
-            start_time = time.perf_counter()  # Починаємо вимір для всіх запитів разом
-            for query in search_words:
+            start_time = time.perf_counter()
+
+            # Функція для одного запиту
+            def fetch_data(query):
                 print(f"Searching for '{query}' ...")
                 url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults={max_results}"
                 response = requests.get(url)
                 if response.status_code != 200:
                     print(f"Error fetching data for query '{query}'")
-                    continue
-                data = response.json()
-                # Тут можна додати обробку даних, якщо потрібно
-            end_time = time.perf_counter()  # Кінець виміру для всіх запитів
+                    return None
+                return response.json()
+
+            # Виконуємо всі запити паралельно
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                # Створюємо майбутні об'єкти (future) для кожного запиту
+                futures = {executor.submit(fetch_data, query): query for query in search_words}
+
+                for future in as_completed(futures):
+                    query = futures[future]
+                    try:
+                        data = future.result()
+                    except Exception as exc:
+                        print(f"Query '{query}' generated an exception: {exc}")
+
+            end_time = time.perf_counter()
             elapsed = end_time - start_time
             print(f"[Timing] Total time for maxResults={max_results}: {elapsed:.4f} seconds")
-
 
 
     def apply_styles(self):
