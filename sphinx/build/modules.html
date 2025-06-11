@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Modules &#8212; Book Recommender Multithreading 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=29a6c3e3"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Book Recommender Multithreading documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-main">
+<span id="modules"></span><h1>Modules<a class="headerlink" href="#module-main" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="main.BookRecommender">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">BookRecommender</span></span><a class="reference internal" href="_modules/main.html#BookRecommender"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QWidget</span></code></p>
+<p>Головний віджет для системи рекомендації книжок.</p>
+<p>Виконує пошук, відображення результатів, підписку на ключові слова,
+історію пошуку з Undo/Redo.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="main.BookRecommender.notifier">
+<span class="sig-name descname"><span class="pre">notifier</span></span><a class="headerlink" href="#main.BookRecommender.notifier" title="Link to this definition">¶</a></dt>
+<dd><p>Об’єкт для повідомлення про нові книги.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>BookNotifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="main.BookRecommender.keyword_subscriber">
+<span class="sig-name descname"><span class="pre">keyword_subscriber</span></span><a class="headerlink" href="#main.BookRecommender.keyword_subscriber" title="Link to this definition">¶</a></dt>
+<dd><p>Підписник на ключові слова.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>UserKeywordSubscriber</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="main.BookRecommender.history">
+<span class="sig-name descname"><span class="pre">history</span></span><a class="headerlink" href="#main.BookRecommender.history" title="Link to this definition">¶</a></dt>
+<dd><p>Історія пошуку.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SearchHistory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.add_keyword_subscription">
+<span class="sig-name descname"><span class="pre">add_keyword_subscription</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.add_keyword_subscription"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.add_keyword_subscription" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.apply_styles">
+<span class="sig-name descname"><span class="pre">apply_styles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.apply_styles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.apply_styles" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.clear_results">
+<span class="sig-name descname"><span class="pre">clear_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.clear_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.clear_results" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.handle_search_error">
+<span class="sig-name descname"><span class="pre">handle_search_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.handle_search_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.handle_search_error" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.handle_search_results">
+<span class="sig-name descname"><span class="pre">handle_search_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elapsed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.handle_search_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.handle_search_results" title="Link to this definition">¶</a></dt>
+<dd><p>Обробляє результати пошуку.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – JSON-дані від Google Books API.</p></li>
+<li><p><strong>elapsed</strong> (<em>float</em>) – Час пошуку в секундах.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.init_ui">
+<span class="sig-name descname"><span class="pre">init_ui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.init_ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.init_ui" title="Link to this definition">¶</a></dt>
+<dd><p>Ініціалізує UI: розміщення віджетів, стилі, підписки на кнопки.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.perform_search_from_memento">
+<span class="sig-name descname"><span class="pre">perform_search_from_memento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memento</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.perform_search_from_memento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.perform_search_from_memento" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.redo_search">
+<span class="sig-name descname"><span class="pre">redo_search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.redo_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.redo_search" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.restore_search_from_memento">
+<span class="sig-name descname"><span class="pre">restore_search_from_memento</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memento</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.restore_search_from_memento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.restore_search_from_memento" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.save_current_state_as_memento">
+<span class="sig-name descname"><span class="pre">save_current_state_as_memento</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.save_current_state_as_memento"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.save_current_state_as_memento" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.search" title="Link to this definition">¶</a></dt>
+<dd><p>Запускає пошук за текстом із поля пошуку.
+Зберігає поточний стан у історію.
+Створює SearchWorker і запускає його у пулі потоків.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.BookRecommender.undo_search">
+<span class="sig-name descname"><span class="pre">undo_search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#BookRecommender.undo_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.BookRecommender.undo_search" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="main.SearchWorker">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">SearchWorker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#SearchWorker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.SearchWorker" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QRunnable</span></code></p>
+<p>Клас для асинхронного пошуку книг через Google Books API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – Запит пошуку.</p></li>
+<li><p><strong>max_results</strong> (<em>int</em><em>, </em><em>optional</em>) – Максимальна кількість результатів. За замовчуванням 20.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="main.SearchWorker.signals">
+<span class="sig-name descname"><span class="pre">signals</span></span><a class="headerlink" href="#main.SearchWorker.signals" title="Link to this definition">¶</a></dt>
+<dd><p>Сигнали для результатів і помилок.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#main.WorkerSignals" title="main.WorkerSignals">WorkerSignals</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="main.SearchWorker.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/main.html#SearchWorker.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.SearchWorker.run" title="Link to this definition">¶</a></dt>
+<dd><p>Запускає пошук у фоновому потоці.</p>
+<p>Відправляє сигнал finished з результатами або сигнал error у разі помилки.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="main.WorkerSignals">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">main.</span></span><span class="sig-name descname"><span class="pre">WorkerSignals</span></span><a class="reference internal" href="_modules/main.html#WorkerSignals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#main.WorkerSignals" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QObject</span></code></p>
+<p>Signals для SearchWorker.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="main.WorkerSignals.finished">
+<span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#main.WorkerSignals.finished" title="Link to this definition">¶</a></dt>
+<dd><p>Сигнал з результатами пошуку і часом виконання.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="main.WorkerSignals.error">
+<span class="sig-name descname"><span class="pre">error</span></span><a class="headerlink" href="#main.WorkerSignals.error" title="Link to this definition">¶</a></dt>
+<dd><p>Сигнал з повідомленням про помилку.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">error</span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id1"><span class="problematic" id="id2">*</span></a>types, name</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str = …, revision</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
+<dd><p>int = …, arguments: Sequence = …) -&gt; PYQT_SIGNAL</p>
+<p>types is normally a sequence of individual types.  Each type is either a
+type object or a string that is the name of a C++ type.  Alternatively
+each type could itself be a sequence of types each describing a different
+overloaded signal.
+name is the optional C++ name of the signal.  If it is not specified then
+the name of the class attribute that is bound to the signal is used.
+revision is the optional revision of the signal that is exported to QML.
+If it is not specified then 0 is used.
+arguments is the optional sequence of the names of the signal’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pyqtSignal(<a href="#id4"><span class="problematic" id="id5">*</span></a>types, name</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str = …, revision</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Book Recommender Multithreading</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Зміст</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#main.BookRecommender"><code class="docutils literal notranslate"><span class="pre">BookRecommender</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#main.SearchWorker"><code class="docutils literal notranslate"><span class="pre">SearchWorker</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#main.WorkerSignals"><code class="docutils literal notranslate"><span class="pre">WorkerSignals</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Book Recommender Multithreading documentation</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Vlada Hvala.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

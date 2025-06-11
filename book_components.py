@@ -7,10 +7,23 @@ from io import BytesIO
 import requests
 
 class BookComponent:
+    """
+    Абстрактний клас компонента для паттерну Composite.
+
+    .. note::
+       Використовується паттерн **Composite** для організації компонентів у дерево,
+       що дозволяє працювати зі складовими і простими об'єктами однаково.
+    """
     def display(self, layout, show_date=True, show_rating=True):
         pass
 
 class BookLeaf(BookComponent):
+    """
+    Листовий елемент у Composite.
+
+    .. note::
+       Паттерн **Composite** — листовий (простіший) елемент, що не містить дочірніх компонентів.
+    """
     def __init__(self, title, poster, date, rating, authors=None):
         self.title = title
         self.poster = poster
@@ -61,6 +74,13 @@ class BookLeaf(BookComponent):
         layout.addWidget(frame)
 
 class BookComposite(BookComponent):
+    """
+    Складений елемент у Composite, що містить інші компоненти.
+
+    .. note::
+       Паттерн **Composite** — складений елемент (композит), що може містити дочірні компоненти,
+       як листові, так і інші композити.
+    """
     def __init__(self, name):
         self.name = name
         self.children = []

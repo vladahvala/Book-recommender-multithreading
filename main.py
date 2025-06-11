@@ -22,10 +22,27 @@ from PyQt5.QtCore import QEventLoop, QUrl
 
 
 class WorkerSignals(QObject):
+    """
+    Signals для SearchWorker.
+
+    Attributes:
+        finished (pyqtSignal): Сигнал з результатами пошуку і часом виконання.
+        error (pyqtSignal): Сигнал з повідомленням про помилку.
+    """
     finished = pyqtSignal(dict, float)
     error = pyqtSignal(str)
 
 class SearchWorker(QRunnable):
+    """
+    Клас для асинхронного пошуку книг через Google Books API.
+
+    Args:
+        query (str): Запит пошуку.
+        max_results (int, optional): Максимальна кількість результатів. За замовчуванням 20.
+
+    Attributes:
+        signals (WorkerSignals): Сигнали для результатів і помилок.
+    """
     def __init__(self, query, max_results=20):
         super().__init__()
         self.query = query
@@ -34,6 +51,11 @@ class SearchWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
+        """
+        Запускає пошук у фоновому потоці.
+
+        Відправляє сигнал finished з результатами або сигнал error у разі помилки.
+        """
         try:
             start_time = time.perf_counter()
             url = f"https://www.googleapis.com/books/v1/volumes?q={self.query}&maxResults={self.max_results}"
@@ -51,8 +73,26 @@ class SearchWorker(QRunnable):
 
 
 class BookRecommender(QWidget):
+    """
+    Головний віджет для системи рекомендації книжок.
+
+    Виконує пошук, відображення результатів, підписку на ключові слова,
+    історію пошуку з Undo/Redo.
+
+    Attributes:
+        notifier (BookNotifier): Об’єкт для повідомлення про нові книги.
+        keyword_subscriber (UserKeywordSubscriber): Підписник на ключові слова.
+        history (SearchHistory): Історія пошуку.
+
+    .. note::
+           Використовується паттерн **Memento** для збереження стану.
+    """
     def __init__(self):
+        """
+        Ініціалізує інтерфейс та підписки.
+        """
         super().__init__()
+        self.threadpool = QThreadPool()
 
         # Створюємо об’єкт BookNotifier і підписника
         self.notifier = BookNotifier()
@@ -64,6 +104,9 @@ class BookRecommender(QWidget):
         self.init_ui()
 
     def init_ui(self):
+        """
+        Ініціалізує UI: розміщення віджетів, стилі, підписки на кнопки.
+        """
         self.apply_styles()
         self.setWindowTitle("Book Recommender System")
         self.setGeometry(200, 100, 1250, 900)
@@ -143,6 +186,10 @@ class BookRecommender(QWidget):
         self.layout.addWidget(self.scroll_area)
 
     def apply_styles(self):
+        """
+        Застосовує стилі до віджетів за допомогою CSS-подібного синтаксису Qt.
+        Визначає шрифти, розміри, кольори, відступи, ефекти наведеня для кнопок і інші стилі.
+        """
         self.setStyleSheet("""
             QWidget {
                 font-family: Segoe UI;
@@ -184,7 +231,7 @@ class BookRecommender(QWidget):
                 background-color: #FAFAFA;
                 border: none;
             }
-                           
+                        
             QPushButton#undoButton {
                 background-color: #FF6F61;  /* теплий червоний/помаранчевий */
                 color: white;
@@ -206,6 +253,11 @@ class BookRecommender(QWidget):
         """)
 
     def add_keyword_subscription(self):
+        """
+        Додає ключове слово з текстового поля до підписки.
+        Оновлює мітку з підписаними ключовими словами.
+        Очищує поле введення після додавання.
+        """
         keyword = self.keyword_input.text().strip().lower()
         if keyword:
             self.keyword_subscriber.add_keyword(keyword)
@@ -213,8 +265,11 @@ class BookRecommender(QWidget):
             self.keywords_label.setText(f"Subscribed keywords: {keywords_list}")
             self.keyword_input.clear()
 
-
     def clear_results(self):
+        """
+        Очищає всі віджети з layout, в якому відображаються результати пошуку.
+        Використовується для оновлення або очищення вмісту перед новим пошуком.
+        """
         while self.results_layout.count():
             item = self.results_layout.takeAt(0)
             widget = item.widget()
@@ -223,6 +278,10 @@ class BookRecommender(QWidget):
                 widget.deleteLater()
 
     def save_current_state_as_memento(self):
+        """
+        Зберігає поточний стан пошуку в об'єкт memento для історії.
+        Зберігаються параметри запиту, режим групування та прапорці відображення дати і рейтингу.
+        """
         memento = SearchMemento(
             query=self.search_box.text().strip(),
             group_mode=self.grouping_box.currentText(),
@@ -231,8 +290,17 @@ class BookRecommender(QWidget):
         )
         self.history.save(memento)
 
-
     def restore_search_from_memento(self, memento):
+        """
+        Відновлює стан інтерфейсу пошуку з memento.
+        Відновлює текст пошуку, вибраний режим групування, стан прапорців.
+        Запускає пошук за збереженим станом.
+
+        Відновлює стан пошуку із Memento.
+
+        .. note::
+           Використовується паттерн **Memento** для відновлення стану.
+        """
         self.search_box.setText(memento.query)
         index = self.grouping_box.findText(memento.group_mode)
         if index != -1:
@@ -242,12 +310,17 @@ class BookRecommender(QWidget):
         self.perform_search_from_memento(memento)
 
     def perform_search_from_memento(self, memento):
+        """
+        Виконує пошук за даними, збереженими в memento.
+        Очищає попередні результати, якщо запит порожній - виходить.
+        Підписується на сигнал завершення роботи SearchWorker.
+        """
         self.clear_results()
 
         if not memento.query:
             return
 
-        # Функція для обробки результатів пошуку, як on_results_ready
+        # Функція для обробки результатів пошуку
         def handle_results(data):
             group_mode = memento.group_mode
             grouped = {}
@@ -264,6 +337,7 @@ class BookRecommender(QWidget):
                 self.notifier.notify(title)
                 leaf = BookLeaf(title, image, published_date, rating, authors)
 
+                # Визначення ключа для групування залежно від вибраного режиму
                 if group_mode == "Group by Year":
                     key = published_date.split('-')[0] if published_date != 'N/A' else "Unknown"
                 elif group_mode == "Group by Rating":
@@ -282,6 +356,7 @@ class BookRecommender(QWidget):
                         grouped[key] = BookComposite(key)
                     grouped[key].add(leaf)
 
+            # Відображення результатів залежно від режиму групування
             if group_mode == "No Grouping":
                 for leaf in ungrouped:
                     leaf.display(self.results_layout, show_date=memento.show_date, show_rating=memento.show_rating)
@@ -289,28 +364,35 @@ class BookRecommender(QWidget):
                 for key in sorted(grouped.keys()):
                     grouped[key].display(self.results_layout, show_date=memento.show_date, show_rating=memento.show_rating)
 
-        # Запускаємо асинхронний пошук через SearchWorker
+        # Створення SearchWorker для асинхронного пошуку
         worker = SearchWorker(memento.query)
-        
-        # Підписуємося на сигнал, щоб отримати результати і передати в handle_results
         worker.results_ready.connect(handle_results)
-        
-        # Запускаємо воркер у пулі потоків
         self.threadpool.start(worker)
 
-
     def undo_search(self):
+        """
+        Відновлює попередній стан пошуку із історії (undo).
+        Якщо є попередній стан — викликає відновлення пошуку.
+        """
         memento = self.history.undo()
         if memento:
             self.restore_search_from_memento(memento)
 
     def redo_search(self):
+        """
+        Відновлює наступний стан пошуку із історії (redo).
+        Якщо є наступний стан — викликає відновлення пошуку.
+        """
         memento = self.history.redo()
         if memento:
             self.restore_search_from_memento(memento)
 
-
     def search(self):
+        """
+        Запускає пошук за текстом із поля пошуку.
+        Зберігає поточний стан у історію.
+        Створює SearchWorker і запускає його у пулі потоків.
+        """
         self.save_current_state_as_memento()
         self.clear_results()
         query = self.search_box.text().strip()
@@ -320,12 +402,20 @@ class BookRecommender(QWidget):
         self.thread_pool = QThreadPool.globalInstance()
         worker = SearchWorker(query)
 
+        # Підписуємося на сигнали завершення пошуку та помилки
         worker.signals.finished.connect(self.handle_search_results)
         worker.signals.error.connect(self.handle_search_error)
 
         self.thread_pool.start(worker)
 
     def handle_search_results(self, data, elapsed):
+        """
+        Обробляє результати пошуку.
+
+        Args:
+            data (dict): JSON-дані від Google Books API.
+            elapsed (float): Час пошуку в секундах.
+        """
         group_mode = self.grouping_box.currentText()
         grouped = {}
         ungrouped = []
@@ -344,6 +434,7 @@ class BookRecommender(QWidget):
 
             leaf = BookLeaf(title, image, published_date, rating, authors)
 
+            # Визначення ключа групування в залежності від режиму
             if group_mode == "Group by Year":
                 key = published_date.split('-')[0] if published_date != 'N/A' else "Unknown"
             elif group_mode == "Group by Rating":
@@ -362,34 +453,36 @@ class BookRecommender(QWidget):
                     grouped[key] = BookComposite(key)
                 grouped[key].add(leaf)
 
-        end_grouping = time.perf_counter()  # кінець вимірювання часу групування
-        grouping_time = end_grouping - start_grouping
-        print(f"Grouping took {grouping_time:.4f} seconds")
-
+        # Відображення результатів пошуку з урахуванням вибраних прапорців
         if group_mode == "No Grouping":
             for leaf in ungrouped:
-                leaf.display(
-                    self.results_layout,
-                    show_date=self.check_var.isChecked(),
-                    show_rating=self.check_var2.isChecked()
-                )
+                leaf.display(self.results_layout,
+                            show_date=self.check_var.isChecked(),
+                            show_rating=self.check_var2.isChecked())
         else:
             for key in sorted(grouped.keys()):
-                grouped[key].display(
-                    self.results_layout,
-                    show_date=self.check_var.isChecked(),
-                    show_rating=self.check_var2.isChecked()
-                )
+                grouped[key].display(self.results_layout,
+                                    show_date=self.check_var.isChecked(),
+                                    show_rating=self.check_var2.isChecked())
 
+        end_grouping = time.perf_counter()
 
+        # Виводимо час пошуку та час групування
+        # print(f"Search time: {elapsed:.2f} seconds")
+        # print(f"Grouping and display time: {end_grouping - start_grouping:.2f} seconds")
 
-    def handle_search_error(self, message):
-        QMessageBox.critical(self, "Помилка пошуку", message)
+    def handle_search_error(self, error):
+        """
+        Обробляє помилки під час пошуку.
 
-if __name__ == '__main__':
+        Args:
+            error (tuple): Кортеж з інформацією про помилку.
+        """
+        exctype, value, traceback_str = error
+        print(f"Search error: {value}")
+
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setStyle("Fusion")
-    window = BookRecommender()
-    window.show()
-    
+    recommender = BookRecommender()
+    recommender.show()
     sys.exit(app.exec_())
